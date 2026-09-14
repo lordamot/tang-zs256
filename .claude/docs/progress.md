@@ -64,6 +64,17 @@ working: the OSD, the ROM from the card, the Scorpion, TR-DOS booting a
 real disk, the keyboard with its chords, General Sound playing modules.
 **0.1.2 is the first build known to work on a board.**
 
+## 0.1.3 (14 September, evening): General Sound's RAM to 2 MB
+
+Six-bit page register, 63 pages, SDRAM 80000h-FFFFFh; the ROM's SDRAM
+copy to 400000h on both sides of the link (firmware `ROM_ADDR_GS`,
+`top.v`'s snoop, the testbench).  Builds (logic 46%, BSRAM 41/46), meets
+timing, lints.  In simulation the card's RAM test finds all 63 pages
+(3Fh to the host) and reaches its command loop at about 11 s, the
+SDRAM's read-after-write clean over the 3.7 million words it touched.
+The firmware and the bitstream go together.  **Flashed the same
+evening: works on the board** (the operator: "GS 2Mb works").
+
 ## State (14 September 2026, the first night)
 
 - **Builds**: `make bitstream` passes the timing gate at 42 MHz (Fmax

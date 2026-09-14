@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.3 alpha - 14 September 2026
+
+Confirmed on the board.
+
+- General Sound's RAM is 2 MB, the card's most: the page register is six
+  bits, 63 window pages of 32 KB, SDRAM words 80000h-FFFFFh.  Its ROM's
+  SDRAM copy moves out of the way to 400000h (byte address, `ROM_ADDR_GS`
+  in the firmware and the snoop in `top.v`) - **flash the firmware and
+  the bitstream together**, an old firmware puts the ROM where the new
+  core has RAM.  The card's RAM test at reset takes about four times
+  longer (a few seconds; the same on a 2 MB card).
+
 ## 0.1.2 alpha - 14 September 2026
 
 The first build known to work on a board: the OSD, the ROM from the

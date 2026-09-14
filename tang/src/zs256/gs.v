@@ -3,7 +3,8 @@
 // gs.v - General Sound: X-Trade's sound card (1997), a computer of its
 // own on the ZX-BUS.
 //
-// A Z80 at 12 MHz with 32 KB of ROM and 512 KB of RAM, four 8-bit DACs
+// A Z80 at 12 MHz with 32 KB of ROM and 2 MB of RAM (the card's most:
+// its page register is six bits, 63 pages of 32 KB), four 8-bit DACs
 // with 6-bit volumes, and four registers the Spectrum sees:
 //
 //   port BBh  written: the command (sets the status's bit 0)
@@ -18,7 +19,7 @@
 //   4000-7FFF  16 KB of RAM, always the same (the firmware's variables
 //              and stack; not part of any window page)
 //   8000-FFFF  a 32 KB window: page 0 the whole ROM, page n the RAM's
-//              32 KB block n (port 0's value; 15 of them here)
+//              32 KB block n (port 0's value, 1..63)
 //   6000-7FFF  read: the byte read goes to the DAC of channel A9:A8
 //              (LD A,(6000h) plays a sample byte on channel 0)
 //
@@ -40,10 +41,10 @@
 // waited about four T-states and the card ran at half its speed, the
 // generator fell behind the interrupt and the DACs played whatever was
 // in the buffers (found on the first board, 14 Sep 2026).  The window's
-// RAM pages are the SDRAM's slot B (words 80000h-9FFFFh), one access a
-// T-state of the host's, waited.  The ROM copy is filled by the MCU's
-// loader as it writes the image (ld_we: top.v snoops poke.v's bytes to
-// 280000h, the SDRAM's copy of the ROM stays unread).
+// RAM pages are the SDRAM's slot B (words 80000h-FFFFFh, 2 MB), one
+// access a T-state of the host's, waited.  The ROM copy is filled by
+// the MCU's loader as it writes the image (ld_we: top.v snoops poke.v's
+// bytes to 400000h, the SDRAM's copy of the ROM stays unread).
 //
 // The interrupt is set by a 42 MHz / 1120 counter and held until the
 // acknowledge: on the card it is an RC pulse of some microseconds
@@ -150,14 +151,14 @@ end
 // dropped.  Each BSRAM has one write port and one read port and no port
 // does both in a clock (Gowin's PA2122).
 //------------------------------------------------------------------------
-reg  [6:0]  page = 7'd0;               // port 00
+reg  [5:0]  page = 6'd0;               // port 00, six bits: 63 RAM pages
 wire        lowrom = (A[15:14] == 2'b00);
 wire        fixed  = (A[15:14] == 2'b01);
-wire        w_rom  = A[15] && (page == 7'd0);
-wire        w_ram  = A[15] && (page != 7'd0);
+wire        w_rom  = A[15] && (page == 6'd0);
+wire        w_ram  = A[15] && (page != 6'd0);
 wire [14:0] rom_adr = lowrom ? {1'b0, A[13:0]} : A[14:0];
 // the window's word address: RAM 80000h + page * 2000h + A[14:2]
-wire [20:0] ram_adr = 21'h80000 + {4'd0, page[3:0], A[14:2]};
+wire [20:0] ram_adr = {2'b01, page, A[14:2]};
 
 reg  [7:0]  rom  [0:32767];
 reg  [7:0]  fram [0:16383];
@@ -234,7 +235,7 @@ always @(posedge clk) begin
     ack_r   <= 1'b0;
     fast_rd <= 1'b0;
     if (reset) begin
-        served <= 1'b0; rd_wait <= 1'b0; page <= 7'd0;
+        served <= 1'b0; rd_wait <= 1'b0; page <= 6'd0;
         cmd <= 8'd0; to_gs <= 8'd0; to_zx <= 8'd0; f_cmd <= 1'b0; f_data <= 1'b0;
         for (i = 0; i < 4; i = i + 1) begin dac[i] <= 8'h80; vol[i] <= 6'd0; end
     end else begin
@@ -275,7 +276,7 @@ always @(posedge clk) begin
             ack_r <= 1'b1;
             din_r <= inta ? 8'hFF : io_byte;
             if (!inta && we_z) case (A[3:0])
-                4'h0: page <= dout[6:0];
+                4'h0: page <= dout[5:0];
                 4'h3: to_zx <= dout;
                 4'h6, 4'h7, 4'h8, 4'h9: vol[A[1:0] + 2'd2] <= dout[5:0];   // 6..9 -> 0..3
                 default: ;

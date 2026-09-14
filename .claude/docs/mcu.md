@@ -105,7 +105,7 @@ way to see whether a label and its value fit the 128 pixels.
 `romload.c`: `rom_boot()` at the end of `menu_init()`, with the machine
 in reset, sends the Scorpion's ROM - the file the settings remember for
 slot 5, else `/sd/zs256.rom` - to SDRAM byte address 100000h, 256 KB at
-most, and `/sd/gs105a.rom` to 280000h, 32 KB; then 'P' says how many
+most, and `/sd/gs105a.rom` to 400000h, 32 KB; then 'P' says how many
 ProfROM banks the image has (0 for 64 KB, 1 for 128, 3 for 256).  A
 file is read through FatFs in 512-byte pieces, each one CMD 6
 transaction (`sys_poke24`: three address bytes, then the bytes).  A

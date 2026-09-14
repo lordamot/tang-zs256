@@ -143,7 +143,7 @@ module tb_top;
                     endcase
                     ram.mem[w >> 2] = v;
                     // the General Sound ROM's BSRAM copy, as the loader would fill it
-                    if (base == 24'h280000 && n < 32768) uut.gsound.rom[n] = c[7:0];
+                    if (base == 24'h400000 && n < 32768) uut.gsound.rom[n] = c[7:0];
                     n = n + 1;
                     c = $fgetc(fd);
                 end
@@ -352,7 +352,7 @@ module tb_top;
             load_image(rom_file, 24'h100000, rom_n);
         end
         if (!$value$plusargs("GSROM=%s", gsrom_file)) gsrom_file = "soft/rom/gs105a.rom";
-        load_image(gsrom_file, 24'h280000, gsrom_n);
+        load_image(gsrom_file, 24'h400000, gsrom_n);
 
         if (fastboot) begin
             wait (uut.init);
@@ -461,8 +461,9 @@ module tb_top;
             $display("[tb] read-after-write: %0d checked, %0d wrong", mem_checks, mem_errs);
         $display("[tb] sdram self-test: done %b, fail %b, late capture %b  (expect 1 0 0 against the model)",
                  uut.bist_done, uut.bist_fail, uut.cap_late);
-        $display("[tb] sd transfers %0d; screen writes %0d; gs: %0d fetches, %0d ints, %0d status polls, pc %04x",
-                 sd_xfers, scr_writes, gs_m1s, gs_ints, gs_polls, uut.gs_pc);
+        // the card's last byte to the host: after its RAM test, the page count (3Fh for 2 MB)
+        $display("[tb] sd transfers %0d; screen writes %0d; gs: %0d fetches, %0d ints, %0d status polls, pc %04x, last byte out %02x",
+                 sd_xfers, scr_writes, gs_m1s, gs_ints, gs_polls, uut.gs_pc, uut.gsound.to_zx);
         sys_debug;
         $display("[tb] debug (CMD 7): flags %02x %02x, disks %02x, pc %02x%02x op %02x, 7FFD %02x 1FFD %02x dos %02x cpu %02x, fe %02x attr %02x prof %02x turbo %02x, m1 %02x%02x resets %02x, gs pc %02x%02x",
                  dbgb[1], dbgb[2], dbgb[3], dbgb[7], dbgb[6], dbgb[5], dbgb[11], dbgb[10], dbgb[9], dbgb[8],

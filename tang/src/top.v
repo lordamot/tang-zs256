@@ -358,9 +358,9 @@ wire signed [15:0] gs_l, gs_r;
 wire [15:0] gs_pc;
 wire        gs_m1;
 // the card's ROM copy is filled as the loader writes the image to its
-// place in the SDRAM (280000h, mnano/romload.h): every byte membus.v
+// place in the SDRAM (400000h, mnano/romload.h): every byte membus.v
 // takes from poke.v in that 32 KB goes to gs.v's BSRAM as well
-wire        gs_ld_we = poke_ack && (poke_a[23:15] == 9'h050);
+wire        gs_ld_we = poke_ack && (poke_a[23:15] == 9'h080);
 gs gsound (
     .clk(clk), .reset(cpu_rst || !system_gs),
     .io_stb(gs_stb), .a3(z_a[3]), .we(z_we), .wdata(z_dout), .rdata(gs_rdata),

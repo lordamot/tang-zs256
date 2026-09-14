@@ -90,7 +90,7 @@ tphase   0   1   2   3   4   5   6   7   8   9  10  11
   the DAC buffers) are BSRAM inside `gs.v`, answered within T2 with no
   wait, and only the window's RAM pages (8000-FFFF, page 1 up) take the
   slot.  The ROM copy is filled by the loader as it writes the image to
-  280000h (top.v snoops `poke.v`'s bytes; the SDRAM's copy stays, unread).
+  400000h (top.v snoops `poke.v`'s bytes; the SDRAM's copy stays, unread).
   The MCU's loader (`poke.v`) takes slot A when
   the Scorpion does not ask, which at start is always.  Refresh takes
   any slot nobody asks for, counted so that nothing is lost.
@@ -109,13 +109,13 @@ row cycle (about 63 ns) fits twice over.
 ```
 SDRAM words 00000h-3FFFFh   the RAM, 64 pages of 16 KB (page p at p * 1000h)
             40000h-4FFFFh   the ROM, 16 pages: four 64 KB banks of {128, 48, SYS, DOS}
-            80000h-9FFFFh   General Sound's window RAM, 15 pages of 32 KB (page n at n * 2000h)
-            A0000h-A1FFFh   General Sound's ROM, 32 KB - written by the loader, read by nobody:
+            80000h-FFFFFh   General Sound's window RAM, 2 MB: 63 pages of 32 KB (page n at 80000h + n * 2000h)
+            100000h-101FFFh General Sound's ROM, 32 KB - written by the loader, read by nobody:
                             gs.v keeps the copy the card runs from (BSRAM), and its fixed 16 KB
 ```
 
 (word = byte address / 4, the byte by its lane; the loader's CMD 6
-address is the byte address: the ROM goes to 100000h, GS's to 280000h.)
+address is the byte address: the ROM goes to 100000h, GS's to 400000h.)
 `memmap.v` turns a Z80 address into `rom`, `rom_page`, `ram_page` from
 7FFD, 1FFD, DOS and the ProfROM bank; `membus.v` makes the word address.
 Nothing is built into the bitstream: the firmware sends the ROM images

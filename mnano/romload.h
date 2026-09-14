@@ -14,7 +14,7 @@
 
 // where the images go: the byte addresses of the whole chip (membus.v)
 #define ROM_ADDR_ZS      0x100000UL   // 256 KB at most
-#define ROM_ADDR_GS      0x280000UL   // 32 KB
+#define ROM_ADDR_GS      0x400000UL   // 32 KB, past the card's 2 MB
 #define ROM_MAX_ZS       (256*1024)
 #define ROM_MAX_GS       (32*1024)
 

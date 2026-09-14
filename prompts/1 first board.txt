@@ -55,3 +55,21 @@ Recorded.  0.1.2 is the first build known to work on a board: progress.md says s
 What the board has not been asked yet, now the list in progress.md's Next: turbo, the SMUC's IDE with a disk image, the clock and NVRAM, a ProfROM 4 boot, the Kempston mouse and joystick, the AY through a program, the Magic button.
 
 Nothing is committed - the tree is still at pre-init and every file is untracked.  A single commit "first board: the Scorpion, General Sound and the keyboard working" would take the whole tree as it stands (bin/ with both binaries, tang/impl/pnr/, tang/build.tcl, soft/rom/ and soft/ZPLAY50.TRD, the docs, prompts/), with tools/*.py, *.sh and *.patch force-added past the /tools/ ignore as git.md says.  ZPLAY50.TRD is someone else's software: say if it should stay out of the repository (soft/ could ignore it).  Your call; I have not run it.
+
+lets extend GS onboard ram to 2Mb
+
+****
+
+Done: General Sound has 2 MB, the card's maximum - its page register is six bits, so 63 window pages of 32 KB plus the fixed 16 KB.
+
+- gs.v: page is six bits (port 0's bits 5:0), the window's word address {01, page, A14..A2} = SDRAM words 80000h-FFFFFh, all of bank 1.
+- The ROM's SDRAM copy sat at A0000h, inside that range now, so it moves to 400000h (byte address): mnano/romload.h ROM_ADDR_GS, top.v's snoop (poke_a[23:15] = 80h), the testbench's preload.  The copy is still read by nobody - gs.v runs from its BSRAM - but the loader has to write somewhere, and the firmware and the bitstream have to agree: FLASH BOTH.  An old firmware with the new core puts the ROM into RAM page 16 and the card's BSRAM stays empty; a new firmware with an old core loses the ROM.
+- The firmware's RAM test at reset covers four times as much and takes about 10 s of machine time before the card answers commands (the same order on a real 2 MB card; psbhlw's 1.05b patch makes it optional).  A player that talks to the card inside that window will find it busy - ZPLAY boots in about that time, so watch for it.
+
+Simulated 12 s: the test finds all 63 pages (3Fh to the host), the command loop is reached, read-after-write on the SDRAM clean over the 3.7 million words touched.  Built: timing gate passed (logic 46%, BSRAM 41/46), lint clean, make fw builds; bin/ has both.  Claims: built, linted, simulated, timed - not flashed.  VERSION 0.1.3, CHANGELOG, progress.md, fpga.md (the memory map), mcu.md, platform.md, README, CLAUDE.md updated.
+
+GS 2Mb works, wrap up
+
+****
+
+Recorded: 0.1.3 confirmed on the board (progress.md, the changelog).  The state of the tree, for the record: 0.1.3 alpha - the Scorpion, TR-DOS from a real disk, the keyboard, General Sound with 2 MB, all reported working on a Tang Nano 20K; untested on the board still: turbo, the SMUC's IDE, clock and NVRAM, a ProfROM boot, the Kempston mouse and joystick, the Magic button.  Nothing committed yet; the commit and the ZPLAY50.TRD question wait for your word.

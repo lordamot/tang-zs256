@@ -185,4 +185,4 @@ LBA and CHS (`ide.v`).
   window onto RAM page 3, which would alias it with window page 1;
   Stinger's guide says 112 of 128 KB are usable, which needs the fixed
   window outside every page.  It is outside here (page 0 of the RAM),
-  and the card's firmware finds all fifteen window pages of 512 KB, where Unreal's aliasing would fail page 1's test.
+  and the card's firmware finds all 63 window pages of 2 MB (15 of 512 KB until 14 Sep 2026), where Unreal's aliasing would fail page 1's test.

@@ -86,7 +86,7 @@ what is next).  Follow `.claude/rules/guideline.md`,
   only the window's RAM pages take slot B.  With everything behind the
   slot the card ran at half speed, its generator fell behind its 37.5
   kHz interrupt and modules played as noise (the first board).  The
-  ROM copy is filled by snooping the loader's bytes to 280000h - the
+  ROM copy is filled by snooping the loader's bytes to 400000h - the
   simulation preloads `uut.gsound.rom` alongside the SDRAM model.  Its
   INT is held until acknowledged; the card's is an RC pulse of some
   microseconds and a short pulse was missed under a waited instruction.

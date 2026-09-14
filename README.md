@@ -39,7 +39,7 @@
 - Beta Disk (ВГ93) с четырьмя дисководами из образов `.trd`.
 - **SMUC**: IDE-диск из образа на карте (LBA и CHS), часы DS12887,
   NVRAM 24C16 - порты как в Unreal Speccy, под ProfROM 4 и iS-DOS.
-- **General Sound**: свой Z80 (~12 МГц), 512 КБ, четыре ЦАП, прошивка
+- **General Sound**: свой Z80 (~12 МГц), 2 МБ, четыре ЦАП, прошивка
   gs105a - файлом с карты.
 - Меню по **F12**: четыре дисковода, HDD, сброс, Magic, «Hardware»
   (ПЗУ, турбо, память, каждое устройство, стерео AY, джойстик, мышь,
@@ -178,7 +178,7 @@ the ROM's tests and shows the Scorpion's menu.  Ran on a board - works, GS plays
 - **SMUC**: an IDE disk from an image on the card (LBA and CHS), the
   DS12887 clock, the 24C16 NVRAM - the ports as Unreal Speccy has them,
   for ProfROM 4 and iS-DOS.
-- **General Sound**: its own Z80 (about 12 MHz), 512 KB, four DACs, the
+- **General Sound**: its own Z80 (about 12 MHz), 2 MB, four DACs, the
   gs105a firmware as a file from the card.
 - A menu on **F12**: four drives, HDD, Reset, Magic, "Hardware" (the
   ROM, turbo, RAM size, each device, AY stereo, joystick, mouse, volume,
