@@ -1,0 +1,57 @@
+continue. current test: flashed mcu with make flash-mcu; flashed tang with flash-fpga-flash
+OSD works, computer generally works also, but seems keyboard input hangs from time to time;
+review general sound also - it currently tries to play (using ZPLAY50.TRD player I added) - but instead of music for mod files it plays noises
+
+****
+
+The first board.  Recorded in .claude/docs/progress.md as the first thing: 0.1.0 boots on a Tang Nano 20K - the OSD, the ROM from the card, the Scorpion usable - which settles the SDRAM at 42 MHz, the HDMI mode and the SPI link on this board.  Two defects, both diagnosed to a mechanism, fixed, built; neither confirmed on the board yet.
+
+The keyboard
+
+Not a hang, a shift held for good.  The firmware's kbd_parse compared the USB report slot by slot; a HID keyboard packs its six slots, so when the first of two held keys goes up the second moves into slot 0 and the firmware sent the core "release B, press B" for a key that never moved.  keyboard.v counted the chord keys' shifts (cs_n, ss_n): a chord key - cursor, Backspace, Delete, and the punctuation , . - = ; ' / that go through Symbol Shift - pressed twice and released once left Caps or Symbol Shift down until reset, and from then on every letter came out as a capital or a symbol.  Fast typing with rollover does exactly this.
+
+- mnano/usb_host.c: the reports are diffed as sets (a key in the old report and not the new one is a release, in the new and not the old a press); releases are sent with the OSD open as well, so a key held while F12 opened it does not stay down in the matrix.
+- tang/src/zs256/keyboard.v: three bitmaps (plain, with Caps Shift, with Symbol Shift), a shift held while any bit of its map is set - idempotent to a repeated press and to a release without its press.
+
+General Sound
+
+Fetched psbhlw's gs-firmware sources (the guideline's source 4) into the scratchpad and read them.  The card's interrupt handler at 0038h, 37.5 kHz, only reads four bytes out of buffers at 6000h-63FFh (the reads are what load the DACs); the main loop's generator (ENGINE/SGEN) has to fill those buffers in time.  In simulation the card's Z80 managed 1.08 M fetches/s in its poll loop: every memory access went through the SDRAM's slot B and waited about four of its T-states, so the card ran at roughly half the real 12 MHz, the generator fell behind the interrupt, and the ISR played stale buffers - noise.  Two more things wrong against the card's schematic (in the same sources): the INT was a 48-clock pulse, 16 of the card's T-states, shorter than a waited instruction, so interrupts were missed - the card's is an RC pulse of some microseconds (DD17.6, C18 10n, R8 470); and a host write of the data register on the same clock as the card's read let the clear win, losing the flag.
+
+- gs.v: the ROM (32 KB) and the fixed 16 KB at 4000-7FFF are BSRAM inside gs.v and answer within T2, no wait state; only the window's RAM pages (8000-FFFF, page 1 up) take slot B.  The ROM copy is filled by snooping the loader's bytes to 280000h in top.v (the SDRAM's copy stays, unread); the testbench preloads uut.gsound.rom alongside the SDRAM model.  INT is held until the acknowledge.  The flags are set-wins.
+- Measured: the card's fetch rate in its ROM checksum loop is now 1.37 M fetches/s in a loop of 181 T - 14 MHz with no wait state.  The 3.5 s run: the card runs its checksum and its 15-page RAM test (about 2 s, as on the real card) and reaches its command loop (294 143 status polls); the host is unchanged (menu, TR-DOS, interrupts); SDRAM read-after-write clean.
+
+What was built
+
+make lint clean; make fw builds; make bitstream passes the timing gate - Fmax 49.3 MHz on clk42, logic 45%, BSRAM 41/46 (the card's 24 blocks on top of 17); bin/tang.fs and bin/bl616.bin are both the new ones.  VERSION 0.1.1 alpha, CHANGELOG, progress.md, fpga.md, CLAUDE.md (a trap for the GS's memory) updated.
+
+Claims: built, linted, simulated, timed.  Not flashed.  The keyboard fix is reasoned from the mechanism, not seen; whether a module plays is the board's answer.  What I could not do here: run ZPLAY - soft/ has no GS player; a copy of ZPLAY50.TRD into soft/ would let make sim +TRDA=soft/ZPLAY50.TRD drive the card and the testbench's I2S line show sound.
+
+Next: flash both (make flash-mcu, make flash-fpga-flash - replug, flash, power-cycle), then a module through ZPLAY and the keyboard under fast typing with punctuation and cursor keys.  Nothing is committed yet (the tree is still on pre-init); say if you want a commit.
+
+GS now plays! Keyboard still a bit failish. Check ./soft/ZPLAY50.TRD - trdos boots it into shell which allows file selection using up down arrows. basically one arrow press and keyboard input hangs
+
+****
+
+General Sound confirmed on the board - recorded.  The keyboard had a second cause, and it was not the keyboard.
+
+Reproduced in simulation with your disk: +TRDA=soft/ZPLAY50.TRD +SDFAST +KEYS=1f +TYPE_MS=3300 boots to the shell at about 10 s of machine time (15 minutes of wall); a Down arrow at 14 s did nothing, and the debug bytes said why - IFF1 = 0.  The shell's arrow, Enter and Space handlers all go through a HALT waiting for the frame interrupt (64C6h), and interrupts were dead: the acknowledge count stopped at 504 in every run, at 10.62 s, before any key.
+
+The IFF1 trace (+IFFTRACE, new) gave the last acknowledge: PC 63BBh.  The shell runs IM 2 with I = 3Bh and takes its vector from the bus - FFh on a Scorpion, through the 48 ROM's 3BFF/3C00 to FFFF and a JR into FFF4.  An interrupt acknowledge is an I/O cycle with M1 and the PC on the address bus, and ports.v selected General Sound on A7..A0 = B3/BB without M1, ahead of the FFh the acknowledge should get.  So the interrupt that arrived with PC = 63BBh (the JP z after BIT 4,A in the key loop) read the card's status, 7Eh, as its vector, and the CPU went through 3B7Eh into nowhere with interrupts off.  The next key's HALT was the hang.  The SMUC's select lacked M1 as well.  On the card the decoder has /M1 in it (VD10 on its schematic); the SMUC's ИД7 too.
+
+- tang/src/zs256/ports.v: every card's select is qualified by M1 (smuc_hit, gs_sel; the mouse already was); the acknowledge reads FFh and strobes nothing.
+- Confirmed in simulation: Down moves the shell's bar to ZX-NEXT, a second Down, Space selects and the file loads and plays, interrupts taken every frame through 20 s.
+- The chord fix from before stands on its own; it was real too.
+
+Built: make bitstream passes the gate (logic 45%, BSRAM 41/46), lint clean; bin/tang.fs is 0.1.2, the firmware unchanged from 0.1.1.  Claims: built, linted, simulated, timed - not flashed.  Docs: progress.md, platform.md (the acknowledge), CLAUDE.md (a trap), CHANGELOG 0.1.2.  Testbench additions: +KEYS2=/+TYPE2_MS= (a later batch of keys, zz a second's pause), +IFFTRACE, a GS status-poll count.
+
+Next: flash-fpga-flash (replug, flash, power-cycle), the arrows in ZPLAY's shell, then fast typing.  Still nothing committed; say if you want one.
+
+all works now, wrap up
+
+****
+
+Recorded.  0.1.2 is the first build known to work on a board: progress.md says so (the OSD, the ROM from the card, the Scorpion, TR-DOS booting a real disk, the keyboard with its chords, General Sound playing modules - your report, the evening of 14 September), the changelog carries it, and the open defect about the boot file is closed (a real disk autoboots; only the hand-built boot.trd stays unverified).
+
+What the board has not been asked yet, now the list in progress.md's Next: turbo, the SMUC's IDE with a disk image, the clock and NVRAM, a ProfROM 4 boot, the Kempston mouse and joystick, the AY through a program, the Magic button.
+
+Nothing is committed - the tree is still at pre-init and every file is untracked.  A single commit "first board: the Scorpion, General Sound and the keyboard working" would take the whole tree as it stands (bin/ with both binaries, tang/impl/pnr/, tang/build.tcl, soft/rom/ and soft/ZPLAY50.TRD, the docs, prompts/), with tools/*.py, *.sh and *.patch force-added past the /tools/ ignore as git.md says.  ZPLAY50.TRD is someone else's software: say if it should stay out of the repository (soft/ could ignore it).  Your call; I have not run it.

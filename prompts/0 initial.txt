@@ -1,0 +1,5 @@
+check siblings: ../tang-mc0511, ../tang-korvet, ../tang-pk8000; check mothership ../tang-ultima - should be compatible; follow directions from repos, copy to here; main infosource - ./infosource, but internet also. goal: we need scorpion zs-256 on tang board, with its periferals - profrom, SMUC, and GS also; compatible with tang ultima
+
+****
+
+(the reply is appended when the exchange finishes - .claude/rules/guideline.md)
