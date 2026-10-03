@@ -116,6 +116,27 @@ evening: works on the board** (the operator: "GS 2Mb works").
    cycle; the firmware could save and restore them with the settings.
 7. No .tap, no .scl (the MCU could convert to a temporary .trd), no
    printer, no RS-232, no Covox.
+8. General Sound's stereo, from `../retro-music-converter` (27 September
+   2026): `gs.v` puts channels 0 and 1 left, 2 and 3 right.  A module
+   written for the Amiga expects Paula's order - 0 and 3 left, 1 and 2
+   right - so on this card its stereo image comes out rearranged (Bop
+   Hoppy's there is).  Which order the original card's DACs have was not
+   checked; if it is this one, an OSD option like the AY's ABC/ACB
+   (`mcu.md`), Amiga order or mono, would do for such modules.  Two
+   modules to try it with, and General Sound with a program that talks
+   to it: that repository's `out/external.trd` (ZPLAY and a 58 KB module
+   in one part) and `out/kragle-bophoppy.trd` (450 KB in seven parts -
+   whether ZPLAY follows past `.0od` is the open question there).
+
+9. The USB mouse on a combined receiver (2 Oct 2026, from Evo Nano's
+   board): a Logitech receiver with keyboard and mouse in one
+   (046d:c534) sends up to 20-byte packets on its mouse interface, and
+   `usb_host.c` asked for the parsed report alone (8 bytes) into an
+   8-byte buffer - an overrun the client loop never cleared, so the
+   mouse never moved.  Fixed in `usb_host.c` (the endpoint's packet
+   size, a 64-byte buffer; `mcu.md`'s "USB HID transfers"), copied from
+   `../retro-tang-evo`, where it made the mouse work on the board.
+   `make fw` builds; not tried on this board, not in `bin/`.
 
 ## Next
 
