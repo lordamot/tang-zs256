@@ -77,15 +77,15 @@ Esc closes.
   for the four floppies.
 - **About**, **Debug** (where the processor is and what the paging
   registers hold - for when it does not start, `.claude/docs/build.md`).
-- **Save settings** - writes `/zs256.ini` on the card; loaded at power-up.
+- **Save settings** - writes `/zs256/zs256.ini` on the card; loaded at power-up.
 
 ## 5. The ROM
 
-`/zs256.rom` on the card is what the machine runs; `soft/rom/` has
+`/zs256/zs256.rom` on the card is what the machine runs; `soft/rom/` has
 v2.94 (the board's authors' choice), v2.95 and two ProfROM 4.01 images.
 A ProfROM's four banks switch as on the board: bank 0 is the ordinary
 ROM, the Service Monitor's menu (Magic, or the boot menu's entries)
-reaches the rest.  General Sound's firmware is `/gs105a.rom`.  Both are
+reaches the rest.  General Sound's firmware is `/zs256/gs105a.rom`.  Both are
 loaded by the BL616 at power-up; the Debug page says what was loaded.
 
 ## 6. The SMUC
@@ -103,7 +103,7 @@ reports is 16 heads x 32 sectors.
 - No picture at all: the monitor may not take 1056x544 at 50 Hz - try
   another; and check the seven wires (`README.md`).
 - A picture but only the border, for ever: the ROM is not loaded (no
-  `/zs256.rom`, or the card was not ready) - the Debug page says "ROM 0
+  `/zs256/zs256.rom`, or the card was not ready) - the Debug page says "ROM 0
   KB"; put the file on the card and reset.
 - The tests but no menu: the SDRAM.  This is the one thing simulation
   cannot vouch for; the Debug page's "bist" and "late" say what the

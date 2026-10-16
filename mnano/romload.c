@@ -44,12 +44,12 @@ unsigned long rom_load(spi_t *spi, const char *path, unsigned long addr, unsigne
   return done;
 }
 
-// the path of a slot's image, or of the default name in the card's root
+// the path of a slot's image, or of the default name in the core's folder
 static const char *rom_path(int slot, const char *dflt, char *buf, int len) {
   char *cwd = (slot >= 0) ? sdc_get_cwd(slot) : NULL;
   char *name = (slot >= 0) ? sdc_get_image_name(slot) : NULL;
   if(cwd && name) snprintf(buf, len, "%s/%s", cwd, name);
-  else snprintf(buf, len, CARD_MOUNTPOINT "/%s", dflt);
+  else snprintf(buf, len, CARD_MOUNTPOINT "/zs256/%s", dflt);
   return buf;
 }
 

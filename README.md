@@ -71,15 +71,15 @@ GND             GND
 
 ## Карта
 
-- `/zs256.rom` - ПЗУ: `soft/rom/scorp294.rom` (64 КБ) или ProfROM
+- `/zs256/zs256.rom` - ПЗУ: `soft/rom/scorp294.rom` (64 КБ) или ProfROM
   (`soft/rom/prof401.rom`, 256 КБ).  Другой файл - через меню (ROM).
-- `/gs105a.rom` - прошивка General Sound: `soft/rom/gs105a.rom`.
+- `/zs256/gs105a.rom` - прошивка General Sound: `soft/rom/gs105a.rom`.
 - Образы `.trd` - где угодно; дисководы A-D выбираются в меню.
 - Образ диска для SMUC (`.img`, `.hdd`, сырые секторы) - где угодно;
   «HDD» в меню.
-- `/zs256.ini` - настройки («Save settings»).
+- `/zs256/zs256.ini` - настройки («Save settings»).
 
-Под Tang Ultima всё то же лежит в папке `/zs256/`.
+Tang Ultima использует ту же структуру карты.
 
 ## Как прошить
 
@@ -198,13 +198,13 @@ Not yet: tape as files (.tap), .scl, the printer, RS-232, Covox.
 
 ## The card
 
-- `/zs256.rom` - the ROM: `soft/rom/scorp294.rom` (64 KB) or a ProfROM
+- `/zs256/zs256.rom` - the ROM: `soft/rom/scorp294.rom` (64 KB) or a ProfROM
   (`soft/rom/prof401.rom`, 256 KB).  Another file: the menu's ROM entry.
-- `/gs105a.rom` - General Sound's firmware: `soft/rom/gs105a.rom`.
+- `/zs256/gs105a.rom` - General Sound's firmware: `soft/rom/gs105a.rom`.
 - `.trd` images anywhere; drives A-D are chosen in the menu.
 - A disk image for the SMUC (`.img`, `.hdd`, raw sectors) anywhere;
   "HDD" in the menu.
-- `/zs256.ini` - the settings ("Save settings").
+- `/zs256/zs256.ini` - the settings ("Save settings").
 
 Under Tang Ultima the same files live in `/zs256/`.
 
@@ -265,3 +265,7 @@ written against), Guy Hutchison (tv80), MikeJ and Sorgelig (the WD1793
 and YM2149 cores, MiSTer), Till Harbaum (MiSTeryNano, whose firmware and
 MCU link all of this runs on), Alexey Gurov (UKNC Nano's hardware).
 Authors of this repository: Sergei Lemeshev and Claude Code.
+
+SD card layout shared with Tang Ultima: `/zs256/` holds this core's
+files and `/zs256/zs256.ini` settings. The firmware creates the folder
+at startup. File browsing defaults there; saved image paths take precedence.

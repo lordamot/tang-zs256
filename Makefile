@@ -189,12 +189,12 @@ menu-test: $(MENU_TEST_SRC) mnano/menu.h VERSION
 card:
 	@echo
 	@echo "copy onto the SD card (FAT32):"
-	@echo "  /zs256.rom     the ROM: soft/rom/scorp294.rom (64 KB), or a ProfROM (256 KB)"
-	@echo "  /gs105a.rom    General Sound's ROM: soft/rom/gs105a.rom"
+	@echo "  /zs256/zs256.rom     the ROM: soft/rom/scorp294.rom (64 KB), or a ProfROM (256 KB)"
+	@echo "  /zs256/gs105a.rom    General Sound's ROM: soft/rom/gs105a.rom"
 	@echo "  *.trd          floppy images, anywhere; Floppy A..D in the menu"
 	@echo "  *.img          a disk image for the SMUC, anywhere; HDD in the menu"
-	@echo "and the menu's Save settings writes /zs256.ini."
-	@echo "Under ../tang-ultima the same files go into /zs256/ instead of the root."
+	@echo "and the menu's Save settings writes /zs256/zs256.ini."
+	@echo "The same card layout is used by ../tang-ultima."
 
 netlist:
 	@mkdir -p $(BUILD)

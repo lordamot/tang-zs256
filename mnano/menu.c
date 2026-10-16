@@ -486,7 +486,7 @@ static const char *settings_file[] = {
   CARD_MOUNTPOINT "/agat9.ini",    // core id = 6  CORE_ID_AGAT9
   CARD_MOUNTPOINT "/pk8000.ini",   // core id = 7  CORE_ID_PK8000
   CARD_MOUNTPOINT "/korvet.ini",   // core id = 8  CORE_ID_KORVET
-  CARD_MOUNTPOINT "/zs256.ini"     // core id = 9  CORE_ID_ZS256
+  CARD_MOUNTPOINT "/zs256/zs256.ini"     // core id = 9  CORE_ID_ZS256
 };
 
 // Returns NULL for a core with no settings file of its own, which both
@@ -506,6 +506,9 @@ static int menu_settings_load(menu_t *menu) {
   printf("Read settings\r\n");
 
   sdc_lock();  // get exclusive access to the file system
+
+  // Share the per-core card layout with Tang Ultima.
+  if(core_id == CORE_ID_ZS256) f_mkdir(CARD_MOUNTPOINT "/zs256");
 
   FIL fil;
   const char *fname = settings_file_name();
